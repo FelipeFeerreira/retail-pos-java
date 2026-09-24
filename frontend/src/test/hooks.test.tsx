@@ -1,0 +1,6 @@
+import {act,renderHook} from '@testing-library/react';
+import {NoticeContext,useNotice,useDebounce} from '../components/Common';
+import i18n,{tr} from '../i18n';
+test('debounces repeated search input',()=>{jest.useFakeTimers();const {result,rerender,unmount}=renderHook(({value})=>useDebounce(value,140),{initialProps:{value:'a'}});rerender({value:'ar'});act(()=>{jest.advanceTimersByTime(100);});expect(result.current).toBe('a');rerender({value:'arroz'});act(()=>{jest.advanceTimersByTime(140);});expect(result.current).toBe('arroz');unmount();jest.useRealTimers();});
+test('notice hook exposes the current notification callback',()=>{const callback=jest.fn();const {result}=renderHook(()=>useNotice(),{wrapper:({children})=><NoticeContext.Provider value={callback}>{children}</NoticeContext.Provider>});result.current('Venda concluída');expect(callback).toHaveBeenCalledWith('Venda concluída');});
+test('Portuguese and English labels switch without translating unknown product names',async()=>{await i18n.changeLanguage('en');expect(tr('Produtos e estoque')).toBe('Products and stock');expect(tr('Meu produto')).toBe('Meu produto');await i18n.changeLanguage('pt');expect(tr('Produtos e estoque')).toBe('Produtos e estoque');});

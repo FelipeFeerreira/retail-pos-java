@@ -1,0 +1,44 @@
+server:
+  port: 8080
+  forward-headers-strategy: framework
+  error:
+    include-message: never
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/mercadinho}
+    username: ${SPRING_DATASOURCE_USERNAME:mercadinho}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    hikari:
+      maximum-pool-size: 15
+      minimum-idle: 2
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate.jdbc.time_zone: UTC
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+app:
+  jwt-secret: ${JWT_SECRET}
+  admin-password: ${ADMIN_PASSWORD}
+  origin: ${APP_ORIGIN:http://localhost:3000}
+  require-https: ${REQUIRE_HTTPS:false}
+  backup-directory: ${BACKUP_DIRECTORY:./backups}
+  backup-retention-days: ${BACKUP_RETENTION_DAYS:14}
+  backup-cron: ${BACKUP_CRON:0 0 3 * * *}
+  zone: America/Sao_Paulo
+  scale-mode: ${SCALE_MODE:mock}

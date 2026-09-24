@@ -1,0 +1,69 @@
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+button,
+input {
+  font: inherit;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-thumb {
+  background: #a9bcb4;
+  border-radius: 9px;
+}
+.receipt {
+  font-family: monospace;
+  padding: 22px;
+  max-width: 340px;
+  margin: auto;
+  color: #111;
+  background: #fff;
+}
+.receipt h2 {
+  text-align: center;
+}
+.receipt table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.receipt td {
+  padding: 6px 2px;
+  vertical-align: top;
+}
+.receipt hr {
+  border: 0;
+  border-top: 1px dashed #888;
+}
+.receipt .right {
+  text-align: right;
+}
+@media print {
+  @page {
+    size: 80mm auto;
+    margin: 3mm;
+  }
+  .receipt {
+    max-width: 74mm;
+    padding: 0;
+  }
+  body {
+    background: white !important;
+  }
+  /* Uma via por página na impressora térmica. */
+  .receipt-copy {
+    break-after: page;
+  }
+  .receipt-copy:last-child {
+    break-after: auto;
+  }
+}

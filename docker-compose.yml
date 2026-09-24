@@ -1,0 +1,60 @@
+name: sistemajava
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: mercadinho
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Execute scripts/setup.ps1 or scripts/setup.sh first}
+      POSTGRES_DB: mercadinho
+      TZ: America/Sao_Paulo
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mercadinho -d mercadinho"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+  backend:
+    build: ./backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/mercadinho
+      SPRING_DATASOURCE_USERNAME: mercadinho
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET required}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?ADMIN_PASSWORD required}
+      APP_ORIGIN: ${APP_ORIGIN:-http://localhost:3000}
+      BACKUP_DIRECTORY: /app/backups
+      BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-14}
+      BACKUP_CRON: ${BACKUP_CRON:-0 0 3 * * *}
+      TZ: America/Sao_Paulo
+    volumes:
+      - backups:/app/backups
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+  frontend:
+    build: ./frontend
+    ports:
+      - "127.0.0.1:3000:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+  pgadmin:
+    image: dpage/pgadmin4:9
+    profiles: ["admin"]
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@mercadinho.local
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-change-this-before-use}
+    ports:
+      - "127.0.0.1:5050:80"
+    depends_on:
+      db:
+        condition: service_healthy
+volumes:
+  db_data:
+  backups:

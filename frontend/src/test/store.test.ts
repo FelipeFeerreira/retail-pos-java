@@ -1,0 +1,8 @@
+import {store,add,change,remove,clear,login,logout,cartTotal} from '../store';
+import type {Product} from '../types';
+const product:Product={id:1,version:0,code:'1',barcode:null,name:'Banana',categoryId:1,categoryName:'Hortifruti',unit:'KG',price:6.99,cost:3,quantity:20,minimumStock:2,expiresOn:null,perishable:false,active:true};
+beforeEach(()=>{store.dispatch(clear());store.dispatch(logout());});
+test('adds weighted quantities without floating-point drift',()=>{store.dispatch(add({product,quantity:.1}));store.dispatch(add({product,quantity:.2}));expect(store.getState().cart[0].quantity).toBe(.3);expect(cartTotal(store.getState().cart)).toBe(2.10);});
+test('updates price when the same product is scanned again',()=>{store.dispatch(add({product,quantity:1}));store.dispatch(add({product:{...product,price:5},quantity:1}));expect(cartTotal(store.getState().cart)).toBe(10);});
+test('edits quantity and absolute discount then removes items',()=>{store.dispatch(add({product,quantity:2}));store.dispatch(change({id:1,quantity:1.5,discount:.49}));expect(cartTotal(store.getState().cart)).toBe(10);store.dispatch(change({id:999,quantity:1}));expect(store.getState().cart).toHaveLength(1);store.dispatch(remove(1));expect(store.getState().cart).toHaveLength(0);});
+test('clears cart and authentication',()=>{store.dispatch(login({token:'token',username:'admin',role:'ADMIN'}));expect(store.getState().auth?.username).toBe('admin');store.dispatch(logout());expect(store.getState().auth).toBeNull();store.dispatch(add({product,quantity:1}));store.dispatch(clear());expect(store.getState().cart).toEqual([]);});
