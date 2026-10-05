@@ -151,6 +151,11 @@ export default function App() {
           }
         });
       },
+      onWebSocketError: () => {
+        // Vercel and some proxies do not support WebSockets. Stop retrying
+        // so the demo keeps working with manual refresh / RTK Query polling.
+        void client.deactivate();
+      },
     });
     client.activate();
     const expiry =

@@ -86,11 +86,12 @@ const en = {
   print: "Print receipt",
   loading: "Loading…",
 };
+const browserLang = typeof navigator !== "undefined" && navigator.language.startsWith("en") ? "en" : "pt";
 void i18n
   .use(initReactI18next)
   .init({
     resources: { pt: { translation: pt }, en: { translation: en } },
-    lng: "pt",
+    lng: browserLang,
     fallbackLng: "pt",
     interpolation: { escapeValue: false },
   });

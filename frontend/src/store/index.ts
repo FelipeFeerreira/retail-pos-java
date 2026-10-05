@@ -113,7 +113,8 @@ export const { login, logout } = authSlice.actions;
 export const { add, change, remove, clear } = cartSlice.actions;
 export const { useGetQuery, useSendMutation } = api;
 export function useData<T>(path: string, skip = false) {
-  const result = useGetQuery(path, { skip });
+  // Poll every 30s when WebSocket is unavailable (e.g. Vercel proxy).
+  const result = useGetQuery(path, { skip, pollingInterval: 30000 });
   return { ...result, data: result.data as T | undefined };
 }
 export const cartTotal = (items: CartItem[]) =>
