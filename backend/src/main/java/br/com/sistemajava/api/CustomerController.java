@@ -66,4 +66,10 @@ public class CustomerController {
   public Customer pay(@Valid @RequestBody Dtos.CreditPayment input) {
     return service.pay(input);
   }
+
+  @PostMapping("/credits/debits")
+  @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+  public Customer debit(@Valid @RequestBody Dtos.CustomerDebit input) {
+    return service.debit(input);
+  }
 }

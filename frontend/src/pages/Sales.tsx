@@ -174,10 +174,6 @@ export default function Sales() {
         throw new Error("Quantidade deve ser maior que zero");
       if (product.unit === "UN" && !Number.isInteger(amount))
         throw new Error("Produto vendido por unidade não aceita fração");
-      const existing =
-        cart.find((i) => i.product.id === product.id)?.quantity || 0;
-      if (existing + amount > Number(product.quantity))
-        throw new Error("Estoque insuficiente");
       const result = (await dispatch(
         api.endpoints.get.initiate(
           "/products/" +
@@ -640,12 +636,10 @@ export default function Sales() {
                 py={0.8}
                 onClick={() =>
                   !adding &&
-                  Number(p.quantity) > 0 &&
                   addProduct(p, parseScan(search).quantity, hasQuantity(search))
                 }
                 sx={{
-                  cursor: Number(p.quantity) > 0 ? "pointer" : "not-allowed",
-                  opacity: Number(p.quantity) > 0 ? 1 : 0.5,
+                  cursor: "pointer",
                   borderBottom: 1,
                   borderColor: "divider",
                   "&:hover": { bgcolor: "action.hover" },
@@ -655,8 +649,14 @@ export default function Sales() {
                   <Typography fontSize={14} fontWeight={650} noWrap>
                     {p.name}
                   </Typography>
-                  <Typography fontSize={11} color="text.secondary">
-                    #{p.code} • {tr("estoque")} {qty(p.quantity)} {p.unit}
+                  <Typography
+                    fontSize={11}
+                    color={Number(p.quantity) > 0 ? "text.secondary" : "warning.main"}
+                  >
+                    #{p.code} •{" "}
+                    {Number(p.quantity) > 0
+                      ? `${tr("estoque")} ${qty(p.quantity)} ${p.unit}`
+                      : tr("sem estoque (vende e fica 0)")}
                   </Typography>
                 </Box>
                 <Typography fontWeight={750}>{money(p.price)}</Typography>
@@ -678,7 +678,10 @@ export default function Sales() {
               <Typography fontSize={12} color="text.secondary">
                 {tr("Estoque")}:{" "}
                 {qty(
-                  Number(selectedItem.product.quantity) - selectedItem.quantity,
+                  Math.max(
+                    0,
+                    Number(selectedItem.product.quantity) - selectedItem.quantity,
+                  ),
                 )}{" "}
                 {selectedItem.product.unit} {tr("após a venda")}
               </Typography>
@@ -1372,7 +1375,16 @@ function ReceiptBody({
     settings?.["store.footer"] || "Obrigado pela preferência! Volte sempre.";
   return (
     <div className="receipt">
-      <h2>{settings?.["store.name"] || "Meu Mercadinho"}</h2>
+      <div style={{ textAlign: "center", marginBottom: 8 }}>
+        <svg aria-label="Logo Empório Ferreira" role="img" viewBox="0 0 64 64" width="48" height="48" style={{ display: "block", margin: "0 auto 4px" }}>
+          <rect x="5" y="19" width="54" height="39" rx="5" fill="#245c3a" />
+          <path d="M3 20 10 7h44l7 13H3Z" fill="#f2bd4c" stroke="#245c3a" strokeWidth="3" strokeLinejoin="round" />
+          <path d="M17 8v12m15-12v12m15-12v12" stroke="#fff" strokeWidth="5" />
+          <rect x="25" y="34" width="14" height="24" rx="2" fill="#fff4d8" />
+          <path d="M32 25v6m-3-3h6" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" />
+        </svg>
+        <h2 style={{ margin: 0 }}>Empório Ferreira</h2>
+      </div>
       <p style={{ textAlign: "center" }}>
         {settings?.["store.address"]}
         {settings?.["store.cnpj"] && (

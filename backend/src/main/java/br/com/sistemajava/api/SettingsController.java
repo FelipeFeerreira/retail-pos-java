@@ -121,6 +121,22 @@ public class SettingsController {
         } else if (key.equals("receipt.copies")) {
           if (!Set.of("1", "2", "3").contains(value))
             throw new BusinessException("Informe de 1 a 3 vias");
+        } else if (key.equals("drawer.mode")) {
+          if (!Set.of("off", "network").contains(value))
+            throw new BusinessException("Conexão da gaveta inválida");
+        } else if (key.equals("drawer.auto")) {
+          if (!Set.of("cash", "always", "never").contains(value))
+            throw new BusinessException("Opção de abertura inválida");
+        } else if (key.equals("drawer.pin")) {
+          if (!Set.of("0", "1").contains(value)) throw new BusinessException("Pino inválido");
+        } else if (key.equals("drawer.port")) {
+          if (!value.matches("\\d{1,5}")
+              || Integer.parseInt(value) < 1
+              || Integer.parseInt(value) > 65535)
+            throw new BusinessException("Porta deve estar entre 1 e 65535");
+        } else if (key.equals("drawer.host")) {
+          if (!value.isEmpty() && !value.matches("[A-Za-z0-9.-]{1,253}"))
+            throw new BusinessException("IP da impressora inválido");
         } else if (!Set.of(
                 "store.name", "store.address", "store.cnpj", "store.phone", "store.footer")
             .contains(key))

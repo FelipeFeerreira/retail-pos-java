@@ -41,6 +41,7 @@ import {
   AccountBalanceRounded,
   ReceiptLongRounded,
   LightModeRounded,
+  PriceCheckRounded,
 } from "@mui/icons-material";
 import {
   NavLink,
@@ -75,11 +76,13 @@ import CustomerDisplay from "./pages/CustomerDisplay";
 import Customers from "./pages/Customers";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
+import Costs from "./pages/Costs";
 const nav = [
   ["/", "dashboard", DashboardRounded],
   ["/sales", "sales", PointOfSaleRounded],
   ["/cash", "cashDrawer", AccountBalanceWalletRounded],
   ["/products", "products", Inventory2Rounded],
+  ["/costs", "costs", PriceCheckRounded],
   ["/stock", "stock", WarehouseRounded],
   ["/purchases", "purchases", LocalShippingRounded],
   ["/finance", "finance", AccountBalanceRounded],
@@ -265,7 +268,7 @@ export default function App() {
         {nav
           .filter(
             (n) =>
-              !["reports", "purchases", "finance", "bills"].includes(n[1]) ||
+              !["reports", "purchases", "finance", "bills", "costs"].includes(n[1]) ||
               auth?.role !== "CASHIER",
           )
           .map(([path, label, Icon]) => (
@@ -477,6 +480,12 @@ export default function App() {
                   <Route path="/cash" element={<Cash />} />
                   <Route path="/products" element={<Products />} />
                   <Route path="/stock" element={<Stock />} />
+                  <Route
+                    path="/costs"
+                    element={
+                      auth.role === "CASHIER" ? <Navigate to="/" /> : <Costs />
+                    }
+                  />
                   <Route
                     path="/bills"
                     element={

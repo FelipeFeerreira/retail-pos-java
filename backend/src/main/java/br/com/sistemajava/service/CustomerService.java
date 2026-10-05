@@ -93,6 +93,29 @@ public class CustomerService {
     return a == null ? b == null : b != null && a.compareTo(b) == 0;
   }
 
+  /** Records a manager-entered debit in the same statement used by fiado sales and payments. */
+  @Transactional
+  public Customer debit(Dtos.CustomerDebit input) {
+    var customer = customers.lock(input.customerId()).orElseThrow(EntityNotFoundException::new);
+    if (!customer.active) throw new BusinessException("Cliente inativo");
+    var debit = new Credit();
+    debit.customer = customer;
+    debit.user = current.get();
+    debit.createdAt = Instant.now();
+    debit.dueDate = LotService.today();
+    debit.amount = Money.round(input.amount());
+    debit.remaining = debit.amount;
+    debit.description = input.description().trim();
+    var terms = policy(customer);
+    debit.interestDay = terms.interestDay();
+    debit.penaltyDay = terms.penaltyDay();
+    customer.balance = customer.balance.add(debit.amount);
+    credits.saveAndFlush(debit);
+    audit.record("DEBIT", "credits", debit.id, "Cliente " + customer.id + ": " + debit.description + " R$ " + debit.amount);
+    updates.publish("credit");
+    return customer;
+  }
+
   @Transactional
   public void delete(Long id) {
     var customer = customers.lock(id).orElseThrow(EntityNotFoundException::new);

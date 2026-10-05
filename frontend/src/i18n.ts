@@ -3,6 +3,7 @@ import { initReactI18next } from "react-i18next";
 const pt = {
   dashboard: "Visão geral",
   products: "Produtos",
+  costs: "Custos pendentes",
   sales: "Frente de caixa",
   cashDrawer: "Caixa",
   stock: "Estoque",
@@ -45,6 +46,7 @@ const pt = {
 const en = {
   dashboard: "Overview",
   products: "Products",
+  costs: "Missing costs",
   sales: "Checkout",
   cashDrawer: "Cash drawer",
   stock: "Stock control",

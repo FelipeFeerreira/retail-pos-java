@@ -578,6 +578,7 @@ function BillForm({
     times: "12",
   });
   const [error, setError] = useState("");
+  const [newSupplier, setNewSupplier] = useState<string | null>(null);
   const [send, { isLoading }] = useSendMutation();
   const notice = useNotice();
   const boleto = values.barcode.trim() ? parseBoleto(values.barcode) : null;
@@ -624,20 +625,61 @@ function BillForm({
                   : boleto.error
             }
           />
-          <TextField
-            select
-            label={tr("Fornecedor / credor")}
-            value={values.supplierId}
-            onChange={(e) => set({ supplierId: e.target.value })}
-            helperText={tr("Cadastre novos credores em Compras → Fornecedores")}
-            required
-          >
-            {suppliers.map((s) => (
-              <MenuItem key={s.id} value={String(s.id)}>
-                {s.name}
+          {newSupplier === null ? (
+            <TextField
+              select
+              label={tr("Fornecedor / credor")}
+              value={values.supplierId}
+              onChange={(e) =>
+                e.target.value === "new"
+                  ? setNewSupplier("")
+                  : set({ supplierId: e.target.value })
+              }
+              required
+            >
+              {suppliers.map((s) => (
+                <MenuItem key={s.id} value={String(s.id)}>
+                  {s.name}
+                </MenuItem>
+              ))}
+              <MenuItem value="new" sx={{ fontWeight: 700 }}>
+                + {tr("Cadastrar novo fornecedor")}
               </MenuItem>
-            ))}
-          </TextField>
+            </TextField>
+          ) : (
+            <Stack direction="row" gap={1} alignItems="flex-start">
+              <TextField
+                autoFocus
+                label={tr("Nome do novo fornecedor / credor")}
+                value={newSupplier}
+                onChange={(e) => setNewSupplier(e.target.value)}
+                sx={{ flex: 1 }}
+              />
+              <Button
+                variant="contained"
+                disabled={!newSupplier.trim() || isLoading}
+                sx={{ mt: 1 }}
+                onClick={async () => {
+                  try {
+                    const created = (await send({
+                      url: "/suppliers",
+                      method: "POST",
+                      body: { name: newSupplier.trim() },
+                    }).unwrap()) as { id: number };
+                    set({ supplierId: String(created.id) });
+                    setNewSupplier(null);
+                  } catch (e) {
+                    setError(errorMessage(e));
+                  }
+                }}
+              >
+                {tr("Salvar")}
+              </Button>
+              <Button sx={{ mt: 1 }} onClick={() => setNewSupplier(null)}>
+                {tr("Cancelar")}
+              </Button>
+            </Stack>
+          )}
           <TextField
             label={tr("Descrição")}
             value={values.description}

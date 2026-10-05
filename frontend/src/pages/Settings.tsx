@@ -1,5 +1,6 @@
 import { tr } from "../i18n";
 import ScaleSettings from "../components/ScaleSettings";
+import DrawerSettings from "../components/DrawerSettings";
 import { useEffect, useState } from "react";
 import {
   Alert,
@@ -300,6 +301,7 @@ export default function Settings() {
       {tab === 1 && (
         <Stack gap={3}>
           <ScaleSettings />
+          <DrawerSettings manager={manager} />
           <Paper variant="outlined" sx={{ p: 3 }}>
             <Stack
               direction="row"

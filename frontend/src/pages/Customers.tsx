@@ -43,6 +43,7 @@ export default function Customers() {
   const query = useDebounce(search);
   const [form, setForm] = useState<Customer | "new" | null>(null);
   const [pay, setPay] = useState<Customer | null>(null);
+  const [debit, setDebit] = useState<Customer | null>(null);
   const paymentKey = useRef(crypto.randomUUID());
   const [statement, setStatement] = useState<Customer | null>(null);
   const [bottle, setBottle] = useState<Customer | null>(null);
@@ -146,6 +147,11 @@ export default function Customers() {
                 </TableCell>
                 <TableCell sx={{ whiteSpace: "nowrap" }}>
                   <Button onClick={() => setBottle(c)}>{tr("Cascos")}</Button>
+                  {manager && (
+                    <Button onClick={() => setDebit(c)}>
+                      Registrar débito
+                    </Button>
+                  )}
                   <Button onClick={() => setStatement(c)}>
                     {tr("Extrato")}
                   </Button>
@@ -299,6 +305,9 @@ export default function Customers() {
           onClose={() => setPay(null)}
         />
       )}
+      {debit && (
+        <DebitDialog customer={debit} onClose={() => setDebit(null)} />
+      )}
       <Dialog
         open={!!statement}
         onClose={() => setStatement(null)}
@@ -357,6 +366,71 @@ export default function Customers() {
         </DialogActions>
       </Dialog>
     </>
+  );
+}
+
+function DebitDialog({
+  customer,
+  onClose,
+}: {
+  customer: Customer;
+  onClose: () => void;
+}) {
+  const [amount, setAmount] = useState("");
+  const [description, setDescription] = useState("Compra pendente");
+  const [error, setError] = useState("");
+  const [send, { isLoading }] = useSendMutation();
+  const notice = useNotice();
+  return (
+    <Dialog open onClose={onClose} fullWidth maxWidth="xs">
+      <DialogTitle>Registrar débito • {customer.name}</DialogTitle>
+      <DialogContent>
+        <Stack gap={2} pt={1}>
+          <Typography>Saldo devedor atual: {money(customer.balance)}</Typography>
+          {error && <Alert severity="error">{error}</Alert>}
+          <TextField
+            autoFocus
+            type="number"
+            label="Valor devido (R$)"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            inputProps={{ min: 0.01, step: 0.01 }}
+          />
+          <TextField
+            label="Motivo / descrição"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            inputProps={{ maxLength: 255 }}
+          />
+          <Typography variant="caption" color="text.secondary">
+            O débito aparece no extrato. Depois, use Receber para registrar o pagamento.
+          </Typography>
+        </Stack>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Cancelar</Button>
+        <Button
+          variant="contained"
+          disabled={isLoading || !(Number(amount) > 0) || !description.trim()}
+          onClick={async () => {
+            setError("");
+            try {
+              await send({
+                url: "/credits/debits",
+                method: "POST",
+                body: { customerId: customer.id, amount: Number(amount), description },
+              }).unwrap();
+              notice("Débito registrado");
+              onClose();
+            } catch (e) {
+              setError(errorMessage(e));
+            }
+          }}
+        >
+          Confirmar débito
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 }
 

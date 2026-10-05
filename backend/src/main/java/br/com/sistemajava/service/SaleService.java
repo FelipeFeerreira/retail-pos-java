@@ -31,6 +31,7 @@ public class SaleService {
   private final LotService lots;
   private final FinanceService finance;
   private final CustomerService customerService;
+  private final DrawerService drawer;
 
   public record Receipt(Sale sale, List<SaleItem> items, List<Payment> payments) {}
 
@@ -52,7 +53,8 @@ public class SaleService {
       CashSessionRepository cashSessions,
       LotService lots,
       FinanceService finance,
-      CustomerService customerService) {
+      CustomerService customerService,
+      DrawerService drawer) {
     this.sales = sales;
     this.items = items;
     this.payments = payments;
@@ -71,6 +73,7 @@ public class SaleService {
     this.lots = lots;
     this.finance = finance;
     this.customerService = customerService;
+    this.drawer = drawer;
   }
 
   @Transactional(readOnly = true)
@@ -112,14 +115,17 @@ public class SaleService {
       if (!sale.customer.active) throw new BusinessException("Cliente inativo");
     }
     var lines = new ArrayList<SaleItem>();
+    var shortages = new HashMap<Long, BigDecimal>();
     var total = BigDecimal.ZERO;
     for (var entry :
         input.items().stream().sorted(Comparator.comparing(Dtos.ItemInput::productId)).toList()) {
       var product = products.lock(entry.productId()).orElseThrow(EntityNotFoundException::new);
       if (!product.active) throw new BusinessException("Produto inativo: " + product.name);
       Money.quantity(product.unit, entry.quantity());
-      if (product.quantity.compareTo(entry.quantity()) < 0)
-        throw new BusinessException("Estoque insuficiente: " + product.name);
+      // Sem estoque suficiente a venda passa: registra a entrada do que faltava e o
+      // estoque termina em zero (conta como se houvesse o suficiente e foi vendido).
+      var missing = entry.quantity().subtract(product.quantity);
+      if (missing.signum() > 0) shortages.put(product.id, missing);
       var item = new SaleItem();
       item.sale = sale;
       item.product = product;
@@ -167,9 +173,19 @@ public class SaleService {
       paymentList.add(payments.save(payment));
     }
     for (var item : lines) {
+      var missing = shortages.get(item.product.id);
+      if (missing != null) {
+        catalog.movement(
+            item.product, sale, "ADJUSTMENT", missing, "Venda sem estoque #" + sale.id);
+        audit.record(
+            "STOCK", "products", item.product.id, "Venda sem estoque: entrada automática de " + missing);
+      }
       // Expiry lots are consumed first-expire-first-out; expired goods cannot be sold.
-      lots.consume(item.product, item.quantity, "SALE", sale.id, false, null);
-      item.product.quantity = item.product.quantity.subtract(item.quantity);
+      var fromStock = missing == null ? item.quantity : item.quantity.subtract(missing);
+      if (fromStock.signum() > 0)
+        lots.consume(item.product, fromStock, "SALE", sale.id, false, null);
+      item.product.quantity =
+          item.product.quantity.subtract(item.quantity).max(BigDecimal.ZERO);
       lots.sync(item.product);
       catalog.movement(item.product, sale, "SALE", item.quantity.negate(), "Venda #" + sale.id);
     }
@@ -191,6 +207,7 @@ public class SaleService {
     finance.onSale(sale, paymentList);
     audit.record("CHECKOUT", "sales", sale.id, "Total " + sale.total);
     updates.publish("sale");
+    drawer.afterSale(sale.id, paymentList.stream().map(p -> p.method).toList());
     return new Receipt(sale, lines, paymentList);
   }
 

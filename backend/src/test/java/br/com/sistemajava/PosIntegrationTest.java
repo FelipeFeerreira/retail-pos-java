@@ -127,17 +127,16 @@ class PosIntegrationTest {
   }
 
   @Test
-  void insufficientStockRollsBackEverything() throws Exception {
-    mvc.perform(
-            post("/api/v1/sales")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                    json.writeValueAsBytes(
-                        sale(productId, "11", "110", "CASH", UUID.randomUUID()))))
-        .andExpect(status().isUnprocessableEntity());
-    assertEquals(10, products.findById(productId).orElseThrow().quantity.intValue());
-    assertEquals(0, jdbc.queryForObject("select count(*) from sales", Integer.class));
+  void saleWithoutEnoughStockEndsAtZero() throws Exception {
+    postJson("/api/v1/sales", sale(productId, "11", "110", "CASH", UUID.randomUUID()));
+    assertEquals(0, products.findById(productId).orElseThrow().quantity.intValue());
+    assertEquals(
+        1,
+        jdbc.queryForObject(
+            "select quantity from stock_movements where product_id=? and type='ADJUSTMENT'"
+                + " and reason like 'Venda sem estoque%'",
+            Integer.class,
+            productId));
   }
 
   @Test
@@ -281,7 +280,7 @@ class PosIntegrationTest {
   }
 
   @Test
-  void concurrentSalesNeverOversell() throws Exception {
+  void concurrentSalesWithoutStockNeverGoNegative() throws Exception {
     jdbc.update("update products set quantity=1 where id=?", productId);
     var executor = Executors.newFixedThreadPool(2);
     var gate = new CountDownLatch(1);
@@ -305,7 +304,8 @@ class PosIntegrationTest {
       var first = executor.submit(task);
       var second = executor.submit(task);
       gate.countDown();
-      assertNotEquals(first.get(20, TimeUnit.SECONDS), second.get(20, TimeUnit.SECONDS));
+      assertTrue(first.get(20, TimeUnit.SECONDS));
+      assertTrue(second.get(20, TimeUnit.SECONDS));
       assertEquals(0, products.findById(productId).orElseThrow().quantity.intValue());
     } finally {
       executor.shutdownNow();

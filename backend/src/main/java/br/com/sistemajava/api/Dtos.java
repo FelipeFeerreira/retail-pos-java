@@ -220,6 +220,12 @@ public final class Dtos {
       @Pattern(regexp = "CASH|PIX|DEBIT|CREDIT") String method,
       Boolean waiveCharges) {}
 
+  public record CustomerDebit(
+      @NotNull Long customerId,
+      @NotNull @DecimalMin(value = "0", inclusive = false) @Digits(integer = 12, fraction = 2)
+          BigDecimal amount,
+      @NotBlank @Size(max = 255) String description) {}
+
   public record CashOpen(
       @NotNull @DecimalMin("0") @Digits(integer = 12, fraction = 2) BigDecimal openingAmount) {}
 
