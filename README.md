@@ -141,3 +141,9 @@ node scripts/import-python.mjs "/caminho/mercadinho.db" --apply
 ---
 
 Desenvolvido por [Felipe Ferreira dos Reis](https://github.com/FelipeFeerreira).
+
+---
+
+## License
+
+MIT - see [LICENSE](LICENSE). You may use, modify and redistribute this code with attribution.
