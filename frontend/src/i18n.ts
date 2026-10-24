@@ -86,12 +86,14 @@ const en = {
   print: "Print receipt",
   loading: "Loading…",
 };
-const browserLang = typeof navigator !== "undefined" && navigator.language.startsWith("en") ? "en" : "pt";
+// The product is pt-BR first; the login screen has no stored preference yet,
+// so a browser-detected default made the UI switch language per machine.
+const defaultLang = "pt";
 void i18n
   .use(initReactI18next)
   .init({
     resources: { pt: { translation: pt }, en: { translation: en } },
-    lng: browserLang,
+    lng: defaultLang,
     fallbackLng: "pt",
     interpolation: { escapeValue: false },
   });
