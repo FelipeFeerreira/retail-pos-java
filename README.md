@@ -4,6 +4,13 @@ PDV e back-office completo para pequenos mercados, mercearias e empórios. Contr
 
 ![Login](portfolio/01-login.png)
 
+| | |
+|:--|:--|
+| **Live demo** | Desktop app — no hosted demo |
+| **Screenshots** | [portfolio](portfolio) |
+| **Stack** | Java · Spring Boot · React · TypeScript · PostgreSQL |
+| **License** | MIT — [LICENSE](LICENSE) |
+
 ## Visão geral
 
 - **Frontend:** React 18, TypeScript, Vite e Material UI
@@ -143,6 +150,12 @@ node scripts/import-python.mjs "/caminho/mercadinho.db" --apply
 Desenvolvido por [Felipe Ferreira dos Reis](https://github.com/FelipeFeerreira).
 
 ---
+
+## O que eu faria a seguir
+
+- Empacotar um instalador Windows com o backend e o banco embutidos para reduzir o atrito do setup.
+- Ampliar os testes de integração das regras de fiado e fechamento de caixa.
+- Adicionar capturas de tela ao README no mesmo padrão do projeto Python.
 
 ## License
 
