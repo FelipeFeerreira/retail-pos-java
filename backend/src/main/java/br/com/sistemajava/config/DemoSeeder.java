@@ -123,7 +123,7 @@ public class DemoSeeder implements ApplicationRunner {
             "store.address", "Demo Street, 123",
             "store.footer", "Thank you for shopping with us!",
             "theme", "light",
-            "language", "en",
+            "language", "pt",
             "calendar.payDays", "5,15,20,30",
             "bottle.types", "600ml,1L,2L,Other");
     for (var e : defaults.entrySet()) {
