@@ -27,7 +27,7 @@ describe("Real PostgreSQL checkout", () => {
     cy.contains("a", "Nova venda").click();
     cy.get('input[placeholder="Ex.: 001 x 3"]').type("001 x 2{enter}");
 
-    cy.contains("button", "Finalizar venda").should("be.enabled").click();
+    cy.contains("button", "Formas de pagamento e finalizar").should("be.enabled").click();
     cy.contains("button", "Confirmar pagamento").click();
     cy.contains("Recibo da venda #").should("be.visible");
     cy.contains("COMPROVANTE NÃO FISCAL").should("be.visible");
