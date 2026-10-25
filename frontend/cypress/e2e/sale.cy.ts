@@ -34,7 +34,7 @@ describe("Real PostgreSQL checkout", () => {
     cy.contains("button", "Imprimir recibo").should("be.visible");
     cy.screenshot("receipt-1366x768", { capture: "viewport" });
     cy.contains("button", "Fechar").click();
-    cy.contains("Caixa livre").should("be.visible");
+    cy.contains("button", "Formas de pagamento e finalizar").should("be.disabled");
   });
   it("opens catalog, customers, reports and settings", () => {
     cy.visit("/");
