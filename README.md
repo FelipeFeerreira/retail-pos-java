@@ -1,6 +1,8 @@
-# Empório POS — Sistema de Caixa e Gestão para Mercados
+# Empório POS — Point of Sale and Store Management for Small Markets
 
-PDV e back-office completo para pequenos mercados, mercearias e empórios. Controle de vendas, estoque, fiado, compras, financeiro e relatórios em uma única aplicação local, com interface moderna e responsiva.
+A complete POS and back office for small markets, grocery stores and corner shops. Sales,
+stock, customer credit ("fiado"), purchasing, finance and reports in a single local
+application, with a modern responsive interface.
 
 ![Login](portfolio/01-login.png)
 
@@ -11,68 +13,83 @@ PDV e back-office completo para pequenos mercados, mercearias e empórios. Contr
 | **Stack** | Java · Spring Boot · React · TypeScript · PostgreSQL |
 | **License** | MIT — [LICENSE](LICENSE) |
 
-## Visão geral
+> The application interface is in Brazilian Portuguese, because the operators and the
+> fiscal language are Brazilian. This README is in English.
 
-- **Frontend:** React 18, TypeScript, Vite e Material UI
-- **Backend:** Java 17, Spring Boot, Maven, Flyway e JWT
-- **Banco:** PostgreSQL 15
-- **Infra:** Docker Compose, backup automático com `pg_dump`
-- **Hardware:** balança Toledo Prix 8217 (Web Serial) e impressora térmica Control iD 80 mm
+## Overview
 
-A interface foi projetada para monitores de caixa (1366×768), com menu lateral adaptável e atalhos de teclado para operação rápida no PDV.
+- **Frontend:** React 18, TypeScript, Vite and Material UI
+- **Backend:** Java 17, Spring Boot, Maven, Flyway and JWT
+- **Database:** PostgreSQL 15
+- **Infra:** Docker Compose, automatic backup with `pg_dump`
+- **Hardware:** Toledo Prix 8217 scale (Web Serial) and Control iD 80 mm thermal printer
 
-## Demonstração das telas
+The interface is designed for checkout monitors (1366×768), with an adaptable side menu and
+keyboard shortcuts for fast POS work.
 
-| Visão geral | Frente de caixa | Pagamento |
+## Screens
+
+| Dashboard | Point of sale | Payment |
 |---|---|---|
-| ![Dashboard](portfolio/02-dashboard.png) | ![PDV](portfolio/03-pdv.png) | ![Pagamento](portfolio/15-pdv-pagamento.png) |
+| ![Dashboard](portfolio/02-dashboard.png) | ![POS](portfolio/03-pdv.png) | ![Payment](portfolio/15-pdv-pagamento.png) |
 
-| Clientes e fiado | Custos pendentes | Contas a pagar |
+| Customers and credit | Missing costs | Bills to pay |
 |---|---|---|
-| ![Clientes](portfolio/08-clientes.png) | ![Custos](portfolio/06-custos.png) | ![Contas](portfolio/11-contas-pagar.png) |
+| ![Customers](portfolio/08-clientes.png) | ![Costs](portfolio/06-custos.png) | ![Bills](portfolio/11-contas-pagar.png) |
 
-| Estoque | Relatórios | Ajustes / gaveta |
+| Stock | Reports | Settings / drawer |
 |---|---|---|
-| ![Estoque](portfolio/07-estoque.png) | ![Relatórios](portfolio/09-relatorios.png) | ![Gaveta](portfolio/17-ajustes-gaveta.png) |
+| ![Stock](portfolio/07-estoque.png) | ![Reports](portfolio/09-relatorios.png) | ![Drawer](portfolio/17-ajustes-gaveta.png) |
 
-Veja todas as imagens na pasta [`portfolio/`](portfolio/).
+See every image in the [`portfolio/`](portfolio/) folder.
 
-## Principais funcionalidades
+## Main features
 
-- **PDV rápido:** busca com debounce, leitor de código de barras como teclado, quantidade `código x N`, carrinho, descontos e pagamentos divididos.
-- **Controle de caixa:** abertura com fundo de troco, sangria, suprimento, fechamento com conferência e relatório imprimível.
-- **Catálogo e estoque:** códigos/barcodes únicos, categorias, UN/KG, custos, estoque mínimo, validade por lote (FEFO), perdas e consumo interno.
-- **Custos:** tela dedicada para produtos sem custo, com importação em lote via planilha Excel/CSV e cálculo de margem em tempo real.
-- **Fiado:** limite, prazo, juros e multa por atraso, extrato imprimível, recebimentos parciais e débitos manuais.
-- **Compras e fornecedores:** nota com vários produtos, custo médio, lotes e preço sugerido pela margem da categoria.
-- **Financeiro:** contas a pagar com calendário, contas a receber, cartões, transferências, DRE gerencial e fluxo de caixa.
-- **Relatórios:** vendas por período, categoria, curva ABC, melhores clientes, estoque, validade e exportação PDF/Excel.
-- **Segurança:** JWT, BCrypt, CSRF, controle por papel (ADMIN / MANAGER / CASHIER) e auditoria persistente.
-- **Atualizações em tempo real:** WebSocket/STOMP com alertas visuais de estoque e validade.
+- **Fast POS:** debounced search, barcode scanner as keyboard input, `code x N` quantity, cart,
+  discounts and split payments.
+- **Cash control:** opening float, cash-out, cash-in, closing with reconciliation and a
+  printable report.
+- **Catalogue and stock:** unique codes/barcodes, categories, UN/KG, costs, minimum stock,
+  expiry per batch (FEFO), losses and internal consumption.
+- **Costs:** dedicated screen for products without a cost, with bulk import from an
+  Excel/CSV sheet and live margin calculation.
+- **Customer credit:** limit, term, interest and late fee, printable statement, partial
+  receipts and manual debits.
+- **Purchasing and suppliers:** invoice with several products, average cost, batches and a
+  price suggested by the category margin.
+- **Finance:** bills to pay with a calendar, receivables, cards, transfers, management P&L and
+  cash flow.
+- **Reports:** sales by period, category, ABC curve, best customers, stock, expiry and
+  PDF/Excel export.
+- **Security:** JWT, BCrypt, CSRF, role-based control (ADMIN / MANAGER / CASHIER) and a
+  persistent audit trail.
+- **Real-time updates:** WebSocket/STOMP with visual stock and expiry alerts.
 
-## Iniciar no Windows
+## Starting on Windows
 
-Pré-requisito: Docker Desktop em execução. Na primeira vez, o script baixa imagens e dependências.
+Requirement: Docker Desktop running. On the first run the script downloads images and
+dependencies.
 
 ```powershell
-cd C:\Users\fefer\OneDrive\Documentos\sistemajava\retail-pos-java
+git clone https://github.com/FelipeFeerreira/retail-pos-java.git
+cd retail-pos-java
 .\iniciar.bat
 ```
 
-Ou manualmente:
+Or manually:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/setup.ps1
 docker compose up --build -d
 ```
 
-Abra **http://localhost:3000**.  
-Usuário padrão: **admin**. A senha está no arquivo local `.env` (não publique esse arquivo).
+Open **http://localhost:3000**.
+Default user: **admin**. The password is in the local `.env` file (never publish that file).
 
 - Interface: http://localhost:3000
 - Swagger: http://localhost:8080/swagger-ui.html
 - OpenAPI JSON: http://localhost:8080/v3/api-docs
-- Saúde: http://localhost:8080/actuator/health
+- Health: http://localhost:8080/actuator/health
 
 Linux/macOS:
 
@@ -81,32 +98,33 @@ bash scripts/setup.sh
 docker compose up --build -d
 ```
 
-## Primeira venda
+## First sale
 
-1. Entre como admin e confira os produtos de exemplo.
-2. Em **Caixa**, informe o fundo de troco e clique em **Abrir caixa**.
-3. Abra **Frente de caixa**, digite o código do produto e pressione Enter.
-4. Pressione **F9** para abrir o pagamento.
-5. Escolha a forma de pagamento, informe o valor recebido e confirme.
-6. Finalize a venda e imprima o recibo não fiscal.
+1. Sign in as admin and check the sample products.
+2. In **Cash**, enter the opening float and click **Open register**.
+3. Open **Point of sale**, type the product code and press Enter.
+4. Press **F9** to open payment.
+5. Choose the payment method, enter the amount received and confirm.
+6. Finish the sale and print the non-fiscal receipt.
 
-## Desenvolvimento local
+## Local development
 
-Requisitos: JDK 17+, Maven 3.9+, Node 22 LTS e PostgreSQL 15.
+Requirements: JDK 17+, Maven 3.9+, Node 22 LTS and PostgreSQL 15.
 
 ```sh
 cd backend
 mvn spring-boot:run
 
-# Outro terminal:
+# Another terminal:
 cd frontend
 npm ci
 npm run dev
 ```
 
-No modo local, `pg_dump`/`pg_restore` 15 precisam estar no PATH. O Vite encaminha `/api` e `/ws` para `localhost:8080`.
+In local mode, `pg_dump`/`pg_restore` 15 must be on the PATH. Vite proxies `/api` and `/ws` to
+`localhost:8080`.
 
-## Testes
+## Tests
 
 ```sh
 mvn -B -f backend/pom.xml verify
@@ -118,44 +136,46 @@ npm run build
 npm run e2e
 ```
 
-O backend usa JUnit 5, MockMvc e Testcontainers com PostgreSQL real. O frontend usa Jest/Testing Library e Cypress com login → venda → recibo contra a API real.
+The backend uses JUnit 5, MockMvc and Testcontainers against a real PostgreSQL. The frontend
+uses Jest/Testing Library and Cypress with login → sale → receipt against the real API.
 
-## Estrutura
+## Structure
 
 ```text
-backend/      Spring Boot, Maven, entidades, serviços, controllers, Flyway e testes
-frontend/     React/Vite, MUI, Redux/RTK Query, Chart.js, Jest e Cypress
-scripts/      preparação de credenciais e utilitários locais
-docs/         arquitetura, contratos, validação e operação
-portfolio/    screenshots para apresentação e portfólio
+backend/      Spring Boot, Maven, entities, services, controllers, Flyway and tests
+frontend/     React/Vite, MUI, Redux/RTK Query, Chart.js, Jest and Cypress
+scripts/      credential setup and local utilities
+docs/         architecture, contracts, validation and operation
+portfolio/    screenshots for presentation and portfolio
 docker-compose.yml
 ```
 
-## Importar dados do sistema Python
+## Importing data from the Python system
 
-Se você tem o sistema anterior em Python/SQLite, use:
+If you have the previous Python/SQLite system, use:
 
 ```sh
-node scripts/import-python.mjs "/caminho/mercadinho.db" --apply
+node scripts/import-python.mjs "/path/to/mercadinho.db" --apply
 ```
 
-## Observações
+## Notes
 
-- Não inclui emissão fiscal, integração com adquirente/Pix homologado nem envio de e-mail.
-- A balança e a gaveta são configuráveis em Ajustes → Equipamentos.
-- Dados e marcas mostrados nas screenshots são fictícios, usados apenas para demonstração.
-
----
-
-Desenvolvido por [Felipe Ferreira dos Reis](https://github.com/FelipeFeerreira).
+- It does not include fiscal receipt issuing, a homologated acquirer/Pix integration or e-mail
+  sending.
+- The scale and the drawer are configurable in Settings → Hardware.
+- Data and brands in the screenshots are fictional and used for demonstration only.
 
 ---
 
-## O que eu faria a seguir
+Built by [Felipe Ferreira dos Reis](https://github.com/FelipeFeerreira).
 
-- Empacotar um instalador Windows com o backend e o banco embutidos para reduzir o atrito do setup.
-- Ampliar os testes de integração das regras de fiado e fechamento de caixa.
-- Adicionar capturas de tela ao README no mesmo padrão do projeto Python.
+---
+
+## What I would do next
+
+- Package a Windows installer with the backend and database embedded to cut setup friction.
+- Expand the integration tests for the customer-credit rules and register closing.
+- Isolate the Cypress scratch spec so the CI suite only runs the maintained scenarios.
 
 ## License
 
